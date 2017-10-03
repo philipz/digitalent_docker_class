@@ -34,5 +34,4 @@ test:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
     - docker pull registry.gitlab.com/$DOCKER_USER/$DOCKER_IMAGE_NAME
     - docker-compose up -d
-    - cd tests && docker build -t philipz/node-test .
-    - docker run --rm --network dockercomposeexample_default philipz/node-test
+    - docker run --rm --network dockercomposeexample_default philipz/phantomjs:6
