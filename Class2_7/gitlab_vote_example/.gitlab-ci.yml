@@ -1,0 +1,38 @@
+image: docker:git
+services:
+  - docker:dind
+variables:
+    DOCKER_IMAGE_NAME: "docker-compose-example"
+    
+before_script:
+  - apk -U add py-pip && pip install docker-compose      
+  - docker-compose -v
+
+stages:
+  - build
+  - test
+
+build:
+  stage: build
+  cache:
+    paths:
+      - tests/
+      - docker-compose.yml
+  script:
+    - docker info
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker build -t registry.gitlab.com/$DOCKER_USER/$DOCKER_IMAGE_NAME .
+    - docker push registry.gitlab.com/$DOCKER_USER/$DOCKER_IMAGE_NAME
+
+test:
+  stage: test
+  cache:
+    paths:
+      - tests/
+      - docker-compose.yml
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker pull registry.gitlab.com/$DOCKER_USER/$DOCKER_IMAGE_NAME
+    - docker-compose up -d
+    - cd tests && docker build -t philipz/node-test .
+    - docker run --rm --network dockercomposeexample_default philipz/node-test

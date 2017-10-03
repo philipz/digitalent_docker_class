@@ -1,0 +1,27 @@
+version: "2"
+
+services:
+  vote:
+    image: registry.gitlab.com/${DOCKER_USER}/${DOCKER_IMAGE_NAME}
+    command: python app.py
+    depends_on:
+      - redis
+      - db
+
+  redis:
+    image: redis:alpine
+
+  worker:
+    image: philipz/votingapp_worker
+    depends_on:
+      - redis
+      - db
+
+  db:
+    image: postgres:9.4
+
+  result:
+    image: philipz/votingapp_result
+    depends_on:
+      - redis
+      - db
