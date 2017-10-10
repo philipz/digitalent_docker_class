@@ -1,0 +1,10 @@
+library(RMySQL)
+con=dbConnect(MySQL(),user='wordpress',password='wordpress',host='db',port=3306,dbname='wordpress')
+summary(con)
+res <- dbSendQuery(con,'SHOW TABLES');
+data <- dbFetch(res, n = 12)
+data
+dbClearResult(res)
+res <- dbSendQuery(con, "SELECT * FROM wp_users")
+data <- dbFetch(res, n = 2)
+data

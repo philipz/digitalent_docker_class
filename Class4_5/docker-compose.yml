@@ -1,0 +1,31 @@
+version: "2"
+
+services:
+  broker:
+    container_name: broker
+    image: philipz/mosquitto
+    networks:
+      - mqtt
+    ports:
+      - "1883:1883"
+
+  Sub:
+    depends_on:
+      - broker
+    container_name: sub
+    image: philipz/rpi-raspbian-mqtt
+    networks:
+      - mqtt
+    command: qemu-arm-static /bin/sh -c 'mosquitto_sub -h broker -t /test'
+
+  Pub:
+    depends_on:
+      - Sub
+    container_name: pub
+    image: philipz/rpi-raspbian-mqtt
+    networks:
+      - mqtt
+    command: qemu-arm-static /bin/sh -c 'mosquitto_pub -h broker -t /test -m Hello_World,Philipz!'
+
+networks:
+  mqtt:
