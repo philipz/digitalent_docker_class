@@ -1,0 +1,52 @@
+image: alpine:latest
+stages:
+  - crawler
+  - db_result
+before_script:
+  - apk -U add curl
+
+google:
+  stage: crawler
+  script:
+    - curl https://www.google.com/  | grep -i title
+yahoo:
+  stage: crawler
+  script:
+    - curl https://tw.yahoo.com/  | grep -i title
+pchome:
+  stage: crawler
+  script:
+    - curl http://www.pchome.com.tw/  | grep -i title
+shopee:
+  stage: crawler
+  script:
+    - curl https://shopee.tw/  | grep -i title
+facebook:
+  stage: crawler
+  script:
+    - curl https://www.facebook.com/  | grep -i title
+twitter:
+  stage: crawler
+  script:
+    - curl https://twitter.com/  | grep -i title
+pinterest:
+  stage: crawler
+  script:
+    - curl https://www.pinterest.com/  | grep -i title
+youtube:
+  stage: crawler
+  script:
+    - curl https://www.youtube.com/  | grep -i title
+amazon:
+  stage: crawler
+  script:
+    - curl https://www.amazon.com/  | grep -i title
+netflix:
+  stage: crawler
+  script:
+    - curl https://www.netflix.com/  | grep -i title
+
+db_result:
+  stage: db_result
+  script:
+    - echo "Hi!"

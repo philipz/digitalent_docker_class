@@ -1,0 +1,37 @@
+image: docker:latest
+services:
+  - docker:dind
+stages:
+  - build
+  - test
+  - deploy
+variables:
+    DOCKER_IMAGE_NAME: "arm-ci"
+    DOCKER_IMAGE_TAG: "20170819"
+                        
+before_script:
+  - docker info
+build:
+  stage: build      
+  script:
+    - docker build . -t registry.gitlab.com/$GITLAB_USER/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker push registry.gitlab.com/$GITLAB_USER/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+test:
+  stage: test
+  script:
+    - apk -U add bash py-pip && pip install docker-compose      
+    - docker-compose -v
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker pull registry.gitlab.com/$GITLAB_USER/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+    - docker-compose up -d
+    - docker-compose ps
+    - ./test.sh
+deploy:
+  stage: deploy
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker pull registry.gitlab.com/$GITLAB_USER/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - docker tag registry.gitlab.com/$GITLAB_USER/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $DOCKER_USER/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+    - docker push $DOCKER_USER/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
